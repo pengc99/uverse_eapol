@@ -1,7 +1,7 @@
 ##### Overview
 This document explains how to use a Ubiquiti Unifi Security Gateway Pro to bypass the AT&T Router Gateway (RG) device, authenticating directly with the DSLAM or with the ONT. These instructions will work whether you are using Uverse Fiber or Uverse VDSL. The only difference is if you are using Uverse Fiber, you don't need the DSL SFP module mentioned since you will be interfacing directly with the ONT over Ethernet. Both Fiber and VDSL service authenticate using EAPoL. 
 
-This guild *will* work if you have any kind of additional service such as TV or phone, but you will no longer be able to receive TV and phone service. 
+This guide *will* work if you have any kind of additional service such as TV or phone, but you will no longer be able to receive TV and phone service. 
 
 This guide *will not* work if you are using bonded VDSL service. You are using bonded VDSL service if your speeds are greater than 100mbit downstream. You can also check in the RG status page to see if the VDSL interface is in bonded mode. 
 
