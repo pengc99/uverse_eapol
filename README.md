@@ -60,7 +60,7 @@ In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaite
 4. After the RG is running again, go to http://192.168.1.254/cgi-bin/ipalloc.ha and assign yourself a static IP address
 5. Refresh your computer's IP address to make sure you have the private IP address that was assigned.
 6. Log into the RG again and authenticate
-7. Run the following curl commands to start a telnet server on the UVerse modem. When prompted for the password for the user ''tech'', just hit ''ENTER''. After the last command is executed, the RG will reboot. 
+7. Run the following curl commands to start a telnet server on the RG. When prompted for the password for the user `tech`, just hit `ENTER`. After the last command is executed, the RG will reboot. 
   ```
   curl -k -u tech -H "User-Agent: blah" -H "Connection:Keep-Alive" -d "appid=001&set_data=| echo 28telnet stream tcp nowait root /usr/sbin/telnetd -i -l /bin/nsh > /var/etc/inetd.d/telnet28|" -v --http1.1 https://192.168.1.254:49955/caserver
   ```
