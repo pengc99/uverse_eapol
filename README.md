@@ -42,6 +42,17 @@ In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaite
   * Your computer may detect malware and prevent you from downloading this file. If it makes you uncomfortable, you can run it in a VM and destroy the VM when you're done. 
 * AT&T UVerse RG firmware archive - https://mega.nz/file/35lBkbzC#MTrKdt57SEuz81Tn3MBKm-o_s1zv643MLmxyKILjsk8
 
+##### Dowonload Software and Prep
+1. Download the software under the "Software Needed" section
+2. Download the following files from the repo:
+  ```
+  uverse_eapol.sh
+  wpa_supplicant-v2.7-hostap_2_7-1-g8f0af16.zip
+  wpa_supplicant.conf
+  ```
+3. Log into your Unifi console and get the SSH password for the `admin` SSH user. Then change the WAN interface to use VLAN 0. After you submit the changes, the Unifi Security Gateway will drop offline. 
+4. Maybe have some alternative method of getting to the internet in case something is borked up.
+
 ##### Extract Certificates From AT&T UVerse RG 
 1. Unzip the AT&T RG Uverse firmware package - we're looking for `spTurquoise210-700_1.0.29.bin`
 2. Disconnect the DSL cable from the RG. 
@@ -68,17 +79,17 @@ In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaite
   mount -o remount,rw /dev/ubi0 /
   ```
 10. Mount the `mfg` partition which contains the certificates
-```
+  ```
   mount mtd:mfg -t jffs2 /mfg
-```
+  ```
 11.  Copy the certificate bundle to the web server directory
-```
-cp /mfg/mfg.dat /www/att/mfg.dat
-```
+  ```
+  cp /mfg/mfg.dat /www/att/mfg.dat
+  ```
 12. Tar and copy the intermediate and root certificates to the web server directory
-```
-tar -zcvf /www/att/certs.tar.gz /etc/rootcert/
-```
+  ```
+  tar -zcvf /www/att/certs.tar.gz /etc/rootcert/
+  ```
 13. Download the certificate bundle and the intermediate and root certificates:
 
     http://192.168.1.254/mfg.dat
@@ -96,42 +107,46 @@ tar -zcvf /www/att/certs.tar.gz /etc/rootcert/
 21. Don't forget to set your computer back to DHCP! 
 
 ##### wpa_supplicant Configuration and Files
-1. Download the following files from the repo:
-  * `uverse_eapol.sh`
-  * `wpa_supplicant-v2.7-hostap_2_7-1-g8f0af16.zip` - extract this archive after you download it. This contains a recent git MIPS binary of `wpa_supplicant`
-  * `wpa_supplicant.conf`
+1. Extract the `wpa_supplicant-v2.7-hostap_2_7-1-g8f0af16.zip` archive. This contains a recent git MIPS binary of `wpa_supplicant`
 2. Edit the `wpa_supplicant.conf` file to have the correct names for the certificates you extracted from step 20 above. Leave the paths alone.
 3. Edit `uverse_eapol.sh` to have the correct interface name for your DSL SFP interface. On my Unifi Security Gateway Pro, the first WAN SFP port is `eth2`
-4. Log into your Unifi console and get the SSH password for the `admin` SSH user. Then change the WAN interface to use VLAN 0. After you submit the changes, the Unifi Security Gateway will drop offline. You will need to log into the Unifi Security Gateway directly via SSH (PuTTY) and SCP (FileZilla) for the next few steps.
-5. Copy the files to your Unifi Security Gateway to the following locations with SCP. Since you can only authenticate as `admin`, you may need to uplink them to `/home/admin` first, then log in with SSH and `sudo su` to root to be able to move the files to the final location.
-  * `/config/scripts/wpa_supplicant`
-  * `/config/scripts/wpa_supplicant.conf`
-  * `/config/scripts/post-config.d/uverse_eapol.sh`
-  * `/config/auth/<your CA certificate file>`
-  * `/config/auth/<your client certificate file>`
-  * `/config/auth/<your private key>`
+4. You will need to log into the Unifi Security Gateway directly via SSH (PuTTY) and SCP (FileZilla) for the next few steps.
+5. Copy the files to the Unifi Security Gateway Pro to the following locations with SCP. Since you can only authenticate as `admin`, you may need to uplink them to `/home/admin` first, then log in with SSH and `sudo su` to root to be able to move the files to the final location.
+  ```/config/scripts/wpa_supplicant
+  /config/scripts/wpa_supplicant.conf
+  /config/scripts/post-config.d/uverse_eapol.sh
+  /config/auth/<your CA certificate file>
+  /config/auth/<your client certificate file>
+  /config/auth/<your private key>```
 6. Set some permissions
-  * `sudo chmod +x /config/scripts/wpa_supplicant`
-  * `sudo chmod +x /config/scripts/post-config.d/uverse_eapol.sh`
-  * `sudo chmod -R 0600 /config/auth`
+  ```
+  sudo chmod +x /config/scripts/wpa_supplicant
+  sudo chmod +x /config/scripts/post-config.d/uverse_eapol.sh
+  sudo chmod -R 0600 /config/auth
+  ```
 7. Unplug the existing Ethernet cable from the WAN1 interface, and plug in the DSL SFP module into the WAN1 SFP port. Plug in your telephone line into the DSL SFP module.
 8. On the right side of the DSL SFP module, there is a green light. When it is blinking, it is training the DSL interface. When it turns solid, the DSL interface is trained.
 9. Run the following command to re-run the startup scripts, which will start `wpa_supplicant`. This needs to be run as `root` or with `sudo`.
-  * `run-parts --report --regex '^[a-zA-Z0-9._-]+$' "/config/scripts/post-config.d"`
+  ```
+  run-parts --report --regex '^[a-zA-Z0-9._-]+$' "/config/scripts/post-config.d"
+  ```
 10. You can check the log output to see if the interface authenticates
-  * `tail -n 50 -f /var/log/messages`
+  ```
+  tail -n 50 -f /var/log/messages
+  ```
 11. The specific lines we're looking for are these, which shows a sucessful EAPoL authentication
-```
-wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-STARTED EAP authentication started
-wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PROPOSED-METHOD vendor=0 method=13
-wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-METHOD EAP vendor 0 method 13 (TLS) selected
-wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PEER-CERT depth=2 subject='/C=US/O=ATT Services Inc/CN=ATT Services Inc Root CA' hash=<hash>
-wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PEER-CERT depth=1 subject='/C=US/O=ATT Services Inc/CN=ATT Services Inc Enhanced Services CA' hash=<hash>
-wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PEER-CERT depth=0 subject='/C=US/ST=Michigan/L=Southfield/O=ATT Services Inc/OU=OCATS/CN=aut01rcsntx.rcsntx.sbcglobal.net' hash=<hash>
-wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PEER-ALT depth=0 DNS:aut01rcsntx.rcsntx.sbcglobal.net
-wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully
-```
-
+  ```
+  wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-STARTED EAP authentication started
+  wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PROPOSED-METHOD vendor=0 method=13
+  wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-METHOD EAP vendor 0 method 13 (TLS) selected
+  wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PEER-CERT depth=2 subject='/C=US/O=ATT Services Inc/CN=ATT Services Inc Root CA' hash=<hash>
+  wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PEER-CERT depth=1 subject='/C=US/O=ATT Services Inc/CN=ATT Services Inc Enhanced Services CA' hash=<hash>
+  wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PEER-CERT depth=0 subject='/C=US/ST=Michigan/L=Southfield/O=ATT Services Inc/OU=OCATS/CN=aut01rcsntx.rcsntx.sbcglobal.net' hash=<hash>
+  wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PEER-ALT depth=0 DNS:aut01rcsntx.rcsntx.sbcglobal.net
+  wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully
+  ```
+12. Reboot and make sure all of the interfaces come up succesfully. If you need to log back in to do troubleshooting you can use the serial console or with SSH and the local IP address.
+ 
 ##### Sources and References
 * https://pastebin.com/SUGLTfv4
 * https://en.wikipedia.org/wiki/IEEE_802.1X
