@@ -117,7 +117,8 @@ In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaite
   /config/scripts/post-config.d/uverse_eapol.sh
   /config/auth/<your CA certificate file>
   /config/auth/<your client certificate file>
-  /config/auth/<your private key>```
+  /config/auth/<your private key>
+  ```
 6. Set some permissions
   ```
   sudo chmod +x /config/scripts/wpa_supplicant
