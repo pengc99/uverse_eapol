@@ -27,7 +27,7 @@ In the end the decision was simple; I ordered a Netsys 100SFP-S DSL SFP module f
 * Netsys 100SFP-S VDSL SFP module
 * AT&T Uverse Router / Gateway BGW210-700
 * A router that is capable of setting VLANs on the WAN / Ethernet interface, and has an SFP port
-  * I'm using a Ubiquiti Unifi Security Gateway Pro 4 port. Any prosumer or professional router should allow you to set the VLAN on the WAN interface, but I haven't seen this option in consumer Linksys / Netgear etc type routers. You may need to flash an alternative firmware like OpenWRT to get this if you have a consumer grade router. Additionally, if your router does not have an SFP port, you can also just build a device that bridges an SFP module to an Ethernet interface, but that is left as an exercise for the reader. 
+  * I'm using a Ubiquiti Unifi Security Gateway Pro 4. Any prosumer or professional router should allow you to set the VLAN on the WAN interface, but I haven't seen this option in consumer Linksys / Netgear etc type routers. You may need to flash an alternative firmware like OpenWRT to get this if you have a consumer grade router. Additionally, if your router does not have an SFP port, you can also just build a device that bridges an SFP module to an Ethernet interface, but that is left as an exercise for the reader. 
 
 ##### Software Needed 
 * curl (already installed on recent Windows 10 builds)
@@ -80,20 +80,52 @@ tar -zcvf /www/att/certs.tar.gz /etc/rootcert/
     http://192.168.1.254/mfg.dat
     
     http://192.168.1.254/certs.tar.gz
-14. ~~Throw the UVerse RG into the garbage~~
+14. Throw the UVerse RG into the garbage
     * Don't actually throw it in the garbage, you need to return it when you terminate your service with AT&T otherwise they will bill you a hefty sum.
     * Using the firmware archive that was downloaded earlier, you can step the UVerse back up to the current firmware by flashing 1.0.29, then 1.5.12, then 2.7.1
 15. Extract the `mfg_dat_decode` utility that was downloaded earlier
 16. Extract the `certs.tar.gz` archive that was downloaded earlier
-17. Copy the `mfg.dat` file into the folder with the `mfg_dat_decode binary`
+17. Copy the `mfg.dat` file into the folder with the `mfg_dat_decode` binary
 18. Copy all of the certificates extracted from `certs.tar.gz` into the folder with the `mfg_dat_decode` binary
 19. Run the `mfg_dat_decode` binary, which will extract and create a tar.gz containing certificates and a `wpa_supplicant.conf` configuration file.
-20. Extract the tar.gz file - you'll end up with a directory that contains three `pem` formatted certificates, a sample `wpa_supplicant.conf` file, and a `readme.txt` file. 
+20. Extract the tar.gz file - you'll end up with a directory that contains three `pem` formatted certificates, a sample `wpa_supplicant.conf` file, and a `readme.txt` file. We only want to keep the three `pem` formatted certificates.
 
 ##### wpa_supplicant Configuration and Files
-1. Create a new file called `uverse_eapol.sh` file using a text editor. Remember to set Unix line breaks.
-
-  
+1. Download the following files from the repo:
+  * `uverse_eapol.sh`
+  * `wpa_supplicant-v2.7-hostap_2_7-1-g8f0af16.zip` - extract this archive after you download it. This contains a recent git MIPS binary of `wpa_supplicant`
+  * `wpa_supplicant.conf`
+2. Edit the `wpa_supplicant.conf` file to have the correct names for the certificates you extracted from step 20 above. Leave the paths alone.
+3. Edit `uverse_eapol.sh` to have the correct interface name for your DSL SFP interface. On my Unifi Security Gateway 4, the first WAN SFP port is `eth2`
+4. Log into your Unifi console and get the SSH password for the `admin` SSH user. Then change the WAN interface to use VLAN 0. After you submit the changes, the Unifi Security Gateway will drop offline. You will need to log into the Unifi Security Gateway directly via SSH (PuTTY) and SCP (FileZilla) for the next few steps.
+5. Copy the files to your Unifi Security Gateway to the following locations with SCP. Since you can only authenticate as `admin`, you may need to uplink them to `/home/admin` first, then log in with SSH and `sudo su` to root to be able to move the files to the final location.
+  * `/config/scripts/wpa_supplicant`
+  * `/config/scripts/wpa_supplicant.conf`
+  * `/config/scripts/post-config.d/uverse_eapol.sh`
+  * `/config/auth/<your CA certificate file>`
+  * `/config/auth/<your client certificate file>`
+  * `/config/auth/<your private key>`
+6. Set some permissions
+  * `sudo chmod +x /config/scripts/wpa_supplicant`
+  * `sudo chmod +x /config/scripts/post-config.d/uverse_eapol.sh`
+  * `sudo chmod -R 0600 /config/auth`
+7. Unplug the existing Ethernet cable from the WAN1 interface, and plug in the DSL SFP module into the WAN1 SFP port. Plug in your telephone line into the DSL SFP module.
+8. On the right side of the DSL SFP module, there is a green light. When it is blinking, it is training the DSL interface. When it turns solid, the DSL interface is trained.
+9. Run the following command to re-run the startup scripts, which will start `wpa_supplicant`. This needs to be run as `root` or with `sudo`.
+  * `run-parts --report --regex '^[a-zA-Z0-9._-]+$' "/config/scripts/post-config.d"`
+10. You can check the log output to see if the interface authenticates
+  * `tail -n 50 -f /var/log/messages`
+11. The specific lines we're looking for are these, which shows a sucessful EAPoL authentication
+```
+wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-STARTED EAP authentication started
+wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PROPOSED-METHOD vendor=0 method=13
+wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-METHOD EAP vendor 0 method 13 (TLS) selected
+wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PEER-CERT depth=2 subject='/C=US/O=ATT Services Inc/CN=ATT Services Inc Root CA' hash=<hash>
+wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PEER-CERT depth=1 subject='/C=US/O=ATT Services Inc/CN=ATT Services Inc Enhanced Services CA' hash=<hash>
+wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PEER-CERT depth=0 subject='/C=US/ST=Michigan/L=Southfield/O=ATT Services Inc/OU=OCATS/CN=aut01rcsntx.rcsntx.sbcglobal.net' hash=<hash>
+wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PEER-ALT depth=0 DNS:aut01rcsntx.rcsntx.sbcglobal.net
+wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully
+```
 
 ##### Sources and References
 * https://pastebin.com/SUGLTfv4
@@ -102,3 +134,4 @@ tar -zcvf /www/att/certs.tar.gz /etc/rootcert/
 * http://earlz.net/view/2012/06/07/0026/rooting-the-nvg510-from-the-webui
 * https://www.reddit.com/r/ATT/comments/g59rwm/bgw210700_root_exploitbypass/
 * https://www.devicelocksmith.com/2018/12/eap-tls-credentials-decoder-for-nvg-and.html
+* https://gist.github.com/physhster/ed0ce1d776e09fd5047c7a7c1c7bcd62#file-usg-wpa-supplicant-config-for-at-t-fiber-L31
