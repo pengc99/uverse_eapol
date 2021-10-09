@@ -3,7 +3,7 @@ This document explains how to use a Ubiquiti Unifi Security Gateway Pro to bypas
 
 This guide *will* work if you have any kind of additional service such as TV or phone, but you will no longer be able to receive TV and phone service. 
 
-This guide *will not* work if you are using bonded VDSL service. You are using bonded VDSL service if your speeds are greater than 100mbit downstream. You can also check in the RG status page to see if the VDSL interface is in bonded mode. 
+This guide *may not* work if you are using bonded VDSL service. You are using bonded VDSL service if your speeds are greater than 100mbit downstream. You can also check in the RG status page to see if the VDSL interface is in bonded mode. 
 
 # Background
 AT&T Uverse service is a triple-play service (internet, phone, and TV) provided by AT&T - depending on what service is available in your area you may be getting FTTH (Fiber to the Home), FTTN (Fiber to the Node), or VDSL (either bonded or unbonded).
