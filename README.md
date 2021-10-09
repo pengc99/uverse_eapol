@@ -1,11 +1,11 @@
-##### Overview
+#### Overview
 This document explains how to use a Ubiquiti Unifi Security Gateway Pro to bypass the AT&T Router Gateway (RG) device, authenticating directly with the DSLAM or with the ONT. These instructions will work whether you are using Uverse Fiber or Uverse VDSL. The only difference is if you are using Uverse Fiber, you don't need the DSL SFP module mentioned since you will be interfacing directly with the ONT over Ethernet. Both Fiber and VDSL service authenticate using EAPoL. 
 
 This guide *will* work if you have any kind of additional service such as TV or phone, but you will no longer be able to receive TV and phone service. 
 
 This guide *will not* work if you are using bonded VDSL service. You are using bonded VDSL service if your speeds are greater than 100mbit downstream. You can also check in the RG status page to see if the VDSL interface is in bonded mode. 
 
-##### Background
+#### Background
 AT&T Uverse service is a triple-play service (internet, phone, and TV) provided by AT&T - depending on what service is available in your area you may be getting FTTH (Fiber to the Home), FTTN (Fiber to the Node), or VDSL (either bonded or unbonded).
 
 FTTN and VDSL both use VDSL2 connectivity from your house to the network. The advantage with FTTN over FTTH is reduced deployment costs for MDUs (Multiple Dwelling Units, such as condos or apartment complexes) - AT&T only has to run fiber to a local node that then serves VDSL2 to the customers.
@@ -26,14 +26,14 @@ Of the companies I emailed, one replied with a slightly vague response (Versatek
 
 In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaited it's arrival. You can find more information about their DSL SFP module here: https://www.netsys-direct.com/collections/dsl-products/products/long-reach-ethernet-over-vdsl2-sfp-cpe-slave-nv-100sfp-s
 
-##### Hardware Needed 
+#### Hardware Needed 
 * Netsys 100SFP-S VDSL SFP module
 * AT&T Uverse Router / Gateway BGW210-700
 * A router that is capable of setting VLANs on the WAN / Ethernet interface, and has an SFP port
   * I'm using a Ubiquiti Unifi Security Gateway Pro. Any prosumer or professional router should allow you to set the VLAN on the WAN interface, but I haven't seen this option in consumer Linksys / Netgear etc type routers. You may need to flash an alternative firmware like OpenWRT to get this if you have a consumer grade router. 
   * Additionally, if your router does not have an SFP port, you can also just build a device that bridges an SFP interface to an Ethernet interface, but that is left as an exercise for the reader. 
 
-##### Software Needed 
+#### Software Needed 
 * curl (already installed on recent Windows 10 builds)
 * 7zip - https://www.7-zip.org/
 * FileZilla - https://filezilla-project.org/
@@ -42,7 +42,7 @@ In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaite
   * Your computer may detect malware and prevent you from downloading this file. If it makes you uncomfortable, you can run it in a VM and destroy the VM when you're done. 
 * AT&T UVerse RG firmware archive - https://mega.nz/file/35lBkbzC#MTrKdt57SEuz81Tn3MBKm-o_s1zv643MLmxyKILjsk8
 
-##### Dowonload Software and Prep
+#### Dowonload Software and Prep
 1. Download the software under the "Software Needed" section
 2. Download the following files from the repo:
   ```
@@ -53,7 +53,7 @@ In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaite
 3. Log into your Unifi console and get the SSH password for the `admin` SSH user. Then change the WAN interface to use VLAN 0. After you submit the changes, the Unifi Security Gateway will drop offline. 
 4. Maybe have some alternative method of getting to the internet in case something is borked up.
 
-##### Extract Certificates From AT&T UVerse RG 
+#### Extract Certificates From AT&T UVerse RG 
 1. Unzip the AT&T RG Uverse firmware package - we're looking for `spTurquoise210-700_1.0.29.bin`
 2. Disconnect the DSL cable from the RG. 
 3. Log into your RG and downgrade the firmware with the above firmware file. The process takes several minutes and modem will reboot. 
@@ -106,7 +106,7 @@ In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaite
 20. Extract the tar.gz file - you'll end up with a directory that contains three `pem` formatted certificates, a sample `wpa_supplicant.conf` file, and a `readme.txt` file. We only want to keep the three `pem` formatted certificates.
 21. Don't forget to set your computer back to DHCP! 
 
-##### wpa_supplicant Configuration and Files
+#### wpa_supplicant Configuration and Files
 1. Extract the `wpa_supplicant-v2.7-hostap_2_7-1-g8f0af16.zip` archive. This contains a recent git MIPS binary of `wpa_supplicant`
 2. Edit the `wpa_supplicant.conf` file to have the correct names for the certificates you extracted from step 20 above. Leave the paths alone.
 3. Edit `uverse_eapol.sh` to have the correct interface name for your DSL SFP interface. On my Unifi Security Gateway Pro, the first WAN SFP port is `eth2`
@@ -148,7 +148,7 @@ In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaite
   ```
 12. Reboot and make sure all of the interfaces come up succesfully. If you need to log back in to do troubleshooting you can use the serial console or with SSH and the local IP address.
  
-##### Sources and References
+#### Sources and References
 * https://pastebin.com/SUGLTfv4
 * https://en.wikipedia.org/wiki/IEEE_802.1X
 * https://www.dupuis.xyz/bgw210-700-root-and-certs/
