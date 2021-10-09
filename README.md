@@ -106,7 +106,7 @@ In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaite
 20. Extract the tar.gz file - you'll end up with a directory that contains three `pem` formatted certificates, a sample `wpa_supplicant.conf` file, and a `readme.txt` file. We only want to keep the three `pem` formatted certificates.
 21. Don't forget to set your computer back to DHCP! 
 
-# wpa_supplicant Configuration and Files
+# Setup wpa_supplicant Configuration and Files
 1. Extract the `wpa_supplicant-v2.7-hostap_2_7-1-g8f0af16.zip` archive. This contains a recent git MIPS binary of `wpa_supplicant`
 2. Edit the `wpa_supplicant.conf` file to have the correct names for the certificates you extracted from step 20 above. Leave the paths alone.
 3. Edit `uverse_eapol.sh` to have the correct interface name for your DSL SFP interface. On my Unifi Security Gateway Pro, the first WAN SFP port is `eth2`
@@ -125,17 +125,18 @@ In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaite
   sudo chmod +x /config/scripts/post-config.d/uverse_eapol.sh
   sudo chmod -R 0600 /config/auth
   ```
-7. Unplug the existing Ethernet cable from the WAN1 interface, and plug in the DSL SFP module into the WAN1 SFP port. Plug in your telephone line into the DSL SFP module.
-8. On the right side of the DSL SFP module, there is a green light. When it is blinking, it is training the DSL interface. When it turns solid, the DSL interface is trained.
-9. Run the following command to re-run the startup scripts, which will start `wpa_supplicant`. This needs to be run as `root` or with `sudo`.
+# Turn it on!
+1. Unplug the existing Ethernet cable from the WAN1 interface, and plug in the DSL SFP module into the WAN1 SFP port. Plug in your telephone line into the DSL SFP module.
+2. On the right side of the DSL SFP module, there is a green light. When it is blinking, it is training the DSL interface. When it turns solid, the DSL interface is trained.
+3. Run the following command to re-run the startup scripts, which will start `wpa_supplicant`. This needs to be run as `root` or with `sudo`.
   ```
   run-parts --report --regex '^[a-zA-Z0-9._-]+$' "/config/scripts/post-config.d"
   ```
-10. You can check the log output to see if the interface authenticates
+4. You can check the log output to see if the interface authenticates
   ```
   tail -n 50 -f /var/log/messages
   ```
-11. The specific lines we're looking for are these, which shows a sucessful EAPoL authentication
+5. The specific lines we're looking for are these, which shows a sucessful EAPoL authentication
   ```
   wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-STARTED EAP authentication started
   wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PROPOSED-METHOD vendor=0 method=13
@@ -146,7 +147,7 @@ In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaite
   wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-PEER-ALT depth=0 DNS:aut01rcsntx.rcsntx.sbcglobal.net
   wpa_supplicant[3351]: eth2: CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully
   ```
-12. Reboot and make sure all of the interfaces come up succesfully. If you need to log back in to do troubleshooting you can use the serial console or with SSH and the local IP address.
+6. Reboot and make sure all of the interfaces come up succesfully. If you need to log back in to do troubleshooting you can use the serial console or with SSH and the local IP address.
  
 # Sources and References
 * https://pastebin.com/SUGLTfv4
