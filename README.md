@@ -22,7 +22,7 @@ There are also modems that claim to use be a "Bridge Modem", or a device that si
 
 The working solution I've been using is to use a SFP DSL module, which will plug into high-end consumer routers that have SFP ports or commercial \ industrial routers. I found a few companies selling DSL SFP modules and sent out a few emails asking for technical information; namely I was looking for modules that would pass EAPoL packets.
 
-Of the companies I emailed, one replied with a slightly vague response (Versatek), one replied saying they were not interested in helping individuals (Proscend), and one responded almost immediately with actual helpful information (Netsys), stating that their modules will pass EAPoL packets. Hats off to Terry at Netsys for being so helpful and willing to answer technical questions!
+Of the companies I emailed, one replied with a slightly vague response (Versatek), one replied saying they were not interested in helping individuals (Proscend), and one responded almost immediately with actual helpful information (Netsys), stating that their modules will pass EAPoL packets. Hats off to Bob at Netsys for being so helpful and willing to answer technical questions!
 
 In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaited it's arrival. You can find more information about their DSL SFP module here: https://www.netsys-direct.com/collections/dsl-products/products/long-reach-ethernet-over-vdsl2-sfp-cpe-slave-nv-100sfp-s
 
