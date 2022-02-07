@@ -40,7 +40,9 @@ In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaite
 * PuTTY - https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html
 * mfg_dat_decode - https://www.devicelocksmith.com/2018/12/eap-tls-credentials-decoder-for-nvg-and.html
   * Your computer may detect malware and prevent you from downloading this file. If it makes you uncomfortable, you can run it in a VM and destroy the VM when you're done. 
-* AT&T UVerse RG firmware archive - https://mega.nz/file/35lBkbzC#MTrKdt57SEuz81Tn3MBKm-o_s1zv643MLmxyKILjsk8
+* AT&T UVerse RG firmware archive - ~~https://mega.nz/file/35lBkbzC#MTrKdt57SEuz81Tn3MBKm-o_s1zv643MLmxyKILjsk8~~
+  * The archive linked above was taken down, but if you do some creative Googling you can find similar archives
+* uverse_eapol.sh, wpa_supplicant-v2.7-hostap_2_7-1-g8f0af16.zip, and wpa_supplicant.conf from the repository
 
 # Dowonload Software and Prep
 1. Download the software under the "Software Needed" section
