@@ -115,6 +115,7 @@ In the end I ordered a Netsys 100SFP-S DSL SFP module for $99 and eagerly awaite
 4. You will need to log into the Unifi Security Gateway directly via SSH (PuTTY) and SCP (FileZilla) for the next few steps.
 5. Copy the files to the Unifi Security Gateway Pro to the following locations with SCP. Since you can only authenticate as `admin`, you may need to uplink them to `/home/admin` first, then log in with SSH and `sudo su` to root to be able to move the files to the final location.
   ```/config/scripts/wpa_supplicant
+  /config/scripts/wpa_supplicant
   /config/scripts/wpa_supplicant.conf
   /config/scripts/post-config.d/uverse_eapol.sh
   /config/auth/<your CA certificate file>
